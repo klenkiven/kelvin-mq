@@ -8,10 +8,12 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import xyz.klenkiven.mq.experiment.heartbeat.codec.HeartbeatDecoder;
 import xyz.klenkiven.mq.experiment.heartbeat.codec.HeartbeatEncoder;
+import xyz.klenkiven.mq.experiment.heartbeat.constant.MqConstant;
 import xyz.klenkiven.mq.experiment.heartbeat.heartbeat.Heartbeat;
 
 import java.util.Date;
@@ -30,13 +32,13 @@ public class HeartBeatServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     protected void initChannel(NioSocketChannel channel) throws Exception {
                         ChannelPipeline pipeline = channel.pipeline();
-                        // pipeline.addLast(new LoggingHandler());
+                        pipeline.addLast(new LoggingHandler());
                         // 显示当前连接状态的 Handler
                         // 如果发生超时事件就会发出 超时事件
                         pipeline.addLast(new IdleStateHandler(
-                                        30,
-                                        60,
-                                        60,
+                                        5,
+                                        0,
+                                        0,
                                         TimeUnit.SECONDS));
                         pipeline.addLast(new HeartbeatTimeoutHandler());
 
@@ -47,8 +49,7 @@ public class HeartBeatServer {
                             @Override
                             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                 Heartbeat heartbeat = (Heartbeat) msg;
-                                log.debug("收到：{}的心跳包", ((Heartbeat) msg).getClientId());
-                                channel.writeAndFlush(new Heartbeat(serverId, (short) 1, new Date()));
+                                log.debug("收到：{}的心跳包", ctx.channel().remoteAddress());
                             }
                         });
                     }

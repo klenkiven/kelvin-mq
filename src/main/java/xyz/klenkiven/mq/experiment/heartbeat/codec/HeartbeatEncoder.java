@@ -9,20 +9,30 @@ import xyz.klenkiven.mq.experiment.heartbeat.heartbeat.Heartbeat;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Heartbeat Package
- * +--------+--------+---------------+----------------+----------------+
- * | 2 Byte | 2 Byte |     4 Byte    |              8 Byte             |
- * +--------+--------+---------------+----------------+----------------+
- * |  magic |  type  |   client-id   |            timestamp            |
- * +--------+--------+---------------+----------------+----------------+
+ * 心跳包
+ * 0        8       16       24       32
+ * +--------+--------+--------+--------+
+ * |  magic | version|  type  |compress|
+ * +--------+--------+--------+--------+
+ * |              length               |
+ * +--------+--------+--------+---------
+ * HEAD 8B
+ * 1B version 1B type 1B codec 1B compress
+ *              4B length
  */
 public class HeartbeatEncoder extends MessageToByteEncoder<Heartbeat> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Heartbeat msg, ByteBuf out) throws Exception {
-        out.writeBytes(MqConstant.BEAT_MAGIC_CODE.getBytes(StandardCharsets.UTF_8));
-        out.writeShort(msg.getType());
-        out.writeInt(msg.getClientId());
-        out.writeLong(msg.getTimestamp().getTime());
+        out.writeByte(MqConstant.BEAT_MAGIC_CODE);
+        out.writeByte(MqConstant.VERSION);
+        out.writeByte(msg.getType());
+        out.writeByte(msg.getCompress());
+        if (msg.getPayload() != null) {
+            out.writeInt(msg.getPayload().length);
+            out.writeBytes(msg.getPayload());
+        } else {
+            out.writeInt(0);
+        }
     }
 }

@@ -6,16 +6,39 @@ import java.util.Date;
 
 /**
  * 心跳包
+ * 0        8       16       24       32
+ * +--------+--------+--------+--------+
+ * |  magic | version|  type  |compress|
+ * +--------+--------+--------+--------+
+ * |              length               |
+ * +--------+--------+--------+---------
+ *
+ * 1B version 1B type 1B codec 1B compress
+ *              4B length
  */
 @Data
 public class Heartbeat {
-    private int clientId;
-    private short type;
-    private Date timestamp;
 
-    public Heartbeat(int clientId, short type, Date timestamp) {
-        this.clientId = clientId;
+    /** 魔数 */
+    private byte magic;
+
+    /** Protocol Version */
+    private byte version;
+
+    /** Frame Type */
+    private int type;
+
+    /** compress type */
+    private byte compress;
+
+    /** Payload */
+    private byte[] payload;
+
+    public Heartbeat(byte magic, byte version, int type, byte compress, byte[] payload) {
+        this.magic = magic;
+        this.version = version;
         this.type = type;
-        this.timestamp = timestamp;
+        this.compress = compress;
+        this.payload = payload;
     }
 }
