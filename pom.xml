@@ -6,7 +6,15 @@
 
     <groupId>xyz.klenkiven</groupId>
     <artifactId>kelvin-mq</artifactId>
+    <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
+    <modules>
+        <module>kelvinmq-experiment</module>
+        <module>kelvinmq-common</module>
+        <module>kelvinmq-server</module>
+        <module>kelvinmq-client</module>
+        <module>kelvinmq-common</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

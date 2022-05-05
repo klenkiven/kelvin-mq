@@ -6,8 +6,6 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import xyz.klenkiven.mq.experiment.heartbeat.constant.MqConstant;
 import xyz.klenkiven.mq.experiment.heartbeat.heartbeat.Heartbeat;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * 心跳包
  * 0        8       16       24       32
