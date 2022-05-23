@@ -11,9 +11,10 @@ public final class MqConstant {
     /** Frame Compress */
     public static final byte COMPRESS_NO = 0;
 
-    /** MQ Message Magic Code */
-    public static final byte[] MSG_MAGIC_CODE = new byte[] {'k', 'k', 'm', 'q'};
-
     /** Max Frame Length */
     public static final int MAX_FRAME_LENGTH = 4 * 1024 * 1024;
+
+    static abstract class FrameType {
+
+    }
 }
