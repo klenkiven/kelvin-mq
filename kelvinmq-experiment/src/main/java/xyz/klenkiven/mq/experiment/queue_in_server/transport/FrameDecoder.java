@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.ReferenceCountUtil;
+import xyz.klenkiven.mq.command.Command;
 import xyz.klenkiven.mq.constant.MqConstant;
 
 /**
@@ -19,10 +20,11 @@ import xyz.klenkiven.mq.constant.MqConstant;
  *              4B length
  */
 public class FrameDecoder extends LengthFieldBasedFrameDecoder {
+    private static final int HEADER_LENGTH = 8;
 
     public FrameDecoder() {
         super(MqConstant.MAX_FRAME_LENGTH,
-                5, 4,
+                4, 4,
                 -8, 0);
     }
 
@@ -32,32 +34,27 @@ public class FrameDecoder extends LengthFieldBasedFrameDecoder {
         checkMagicCode(decode.readByte(), ctx);
         checkProtocolVersion(decode.readByte(), ctx);
         byte type = decode.readByte();
+        System.out.println("获取到类型：" + type);
         byte compress = decode.readByte();
         int length = decode.readInt();
 
-        byte[] payload = new byte[length];
-        if (length != 0) {
+        int payloadLength = length - HEADER_LENGTH;
+        byte[] payload = new byte[payloadLength];
+        if (payloadLength != 0) {
             decode.readBytes(payload);
         }
 
-        // TODO Decompress Payload
+        if (type == MqConstant.FrameType.HEARTBEAT) {
+            ReferenceCountUtil.release(in);
+            return null;
+        }
 
-        // TODO Resolve Payload
-        Object ret = null;
-        if (type == MqConstant.FrameType.REQUEST) ret = resolveRequest(payload);
-        else if (type == MqConstant.FrameType.RESPONSE) ret = resolveResponse(payload);
+        // TODO Decompress
 
-        // 释放资源
+        // 转换对象 && 释放资源
+        Object ret = Command.toCommand(type, payload);
         ReferenceCountUtil.release(in);
         return ret;
-    }
-
-    private Object resolveResponse(byte[] payload) {
-        return null;
-    }
-
-    private Object resolveRequest(byte[] payload) {
-        return null;
     }
 
     private void checkProtocolVersion(byte version, ChannelHandlerContext ctx) {

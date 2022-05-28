@@ -5,7 +5,7 @@ import xyz.klenkiven.mq.constant.MqConstant;
 /**
  * 传输层包
  *
- * 0        8       16       24       32
+ * 0        1        2        3        4
  * +--------+--------+--------+--------+
  * |  magic | version|  type  |compress|
  * +--------+--------+--------+--------+
@@ -17,7 +17,7 @@ import xyz.klenkiven.mq.constant.MqConstant;
  */
 public class Frame {
 
-    /** 魔数 */
+    /** Magic Code */
     private byte magic;
 
     /** Protocol Version */
@@ -71,4 +71,5 @@ public class Frame {
     public void setPayload(byte[] payload) {
         this.payload = payload;
     }
+
 }

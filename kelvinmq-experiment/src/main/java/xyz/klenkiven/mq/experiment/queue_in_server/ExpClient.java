@@ -5,11 +5,14 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import xyz.klenkiven.mq.command.ConnectionCommand;
 import xyz.klenkiven.mq.experiment.queue_in_server.transport.FrameDecoder;
 import xyz.klenkiven.mq.experiment.queue_in_server.transport.FrameEncoder;
 import xyz.klenkiven.mq.experiment.queue_in_server.transport.HeartbeatHandler;
+import xyz.klenkiven.mq.model.builder.FrameBuilder;
 
 import java.net.InetSocketAddress;
+import java.util.Date;
 import java.util.UUID;
 
 public class ExpClient {
@@ -30,6 +33,15 @@ public class ExpClient {
                         pipeline.addLast(new FrameDecoder());
                         pipeline.addLast(new FrameEncoder());
 
+                        /* CONNECTION */
+                        pipeline.addLast(new ChannelInboundHandlerAdapter() {
+                            @Override
+                            public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                ctx.writeAndFlush(new ConnectionCommand(new Date()).toFrame());
+                                ctx.fireChannelActive();
+                            }
+                        });
+
                         /* Heartbeat */
                         pipeline.addLast(new HeartbeatHandler(pipeline));
 
@@ -38,11 +50,5 @@ public class ExpClient {
 
         // 获取关闭 Future
         ChannelFuture closeFuture = channel.closeFuture();
-        closeFuture.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-
-            }
-        });
     }
 }

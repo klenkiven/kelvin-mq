@@ -7,9 +7,13 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
+import xyz.klenkiven.mq.experiment.queue_in_server.context.BrokerContext;
+import xyz.klenkiven.mq.experiment.queue_in_server.context.DefaultBrokerContext;
+import xyz.klenkiven.mq.experiment.queue_in_server.handler.CommandHandler;
 import xyz.klenkiven.mq.experiment.queue_in_server.transport.FrameDecoder;
 import xyz.klenkiven.mq.experiment.queue_in_server.transport.FrameEncoder;
 import xyz.klenkiven.mq.experiment.queue_in_server.transport.HeartbeatTimeoutHandler;
+import xyz.klenkiven.mq.experiment.queue_in_server.utils.CommandHandlerRegistry;
 
 @Slf4j
 public class ExpServer {
@@ -17,6 +21,9 @@ public class ExpServer {
     public static void main(String[] args) {
         NioEventLoopGroup boss = new NioEventLoopGroup();
         NioEventLoopGroup child = new NioEventLoopGroup();
+
+        BrokerContext context = new DefaultBrokerContext();
+
         new ServerBootstrap()
                 .group(boss, child)
                 .channel(NioServerSocketChannel.class)
@@ -32,9 +39,9 @@ public class ExpServer {
                         /* Heartbeat */
                         pipeline.addLast(new HeartbeatTimeoutHandler(pipeline));
 
-                        /* Message Handler */
+                        /* Command Handler */
+                        new CommandHandlerRegistry(pipeline, context);
 
-                        /* RPC Handler */
                     }
                 }).bind(5783);
     }

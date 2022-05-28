@@ -2,8 +2,6 @@ package xyz.klenkiven.mq.model.builder;
 
 import xyz.klenkiven.mq.constant.MqConstant;
 import xyz.klenkiven.mq.model.Frame;
-import xyz.klenkiven.mq.model.Message;
-import xyz.klenkiven.mq.serializer.Serializer;
 
 /**
  * FrameBuilder
@@ -25,17 +23,9 @@ public final class FrameBuilder {
         return frameBuilder;
     }
 
-    public static FrameBuilder request(Message message) {
+    public static FrameBuilder frame(byte type) {
         FrameBuilder frameBuilder = new FrameBuilder();
-        frameBuilder.frame.setType(MqConstant.FrameType.REQUEST);
-        frameBuilder.frame.setPayload(new byte[0]);
-        return frameBuilder;
-    }
-
-    public static FrameBuilder response() {
-        FrameBuilder frameBuilder = new FrameBuilder();
-        frameBuilder.frame.setType(MqConstant.FrameType.RESPONSE);
-        frameBuilder.frame.setPayload(new byte[0]);
+        frameBuilder.frame.setType(type);
         return frameBuilder;
     }
 
